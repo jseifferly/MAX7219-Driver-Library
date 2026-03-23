@@ -1,0 +1,16 @@
+/*
+ * MatrixDriver.h
+ *
+ *  Created on: Mar 23, 2026
+ *      Author: andleo
+ */
+
+#ifndef INC_MAX7219DRIVER_H_
+#define INC_MAX7219DRIVER_H_
+
+void Matrix_Clear(void);
+void Matrix_Init(void);
+void Write_Char(int matrix_num, int char_num);
+void Six_Seven(int iterations);
+
+#endif /* INC_MAX7219DRIVER_H_ */
