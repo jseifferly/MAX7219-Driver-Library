@@ -9,7 +9,6 @@
 #include "main.h"
 
 #define MAX_ROW 8
-#define NUM_MATRIX 4
 #define CHAR_MAX 38
 #define NOOP 0x00
 
@@ -68,9 +67,7 @@ void Matrix_Clear(void) {
 	for (int row = 1; row <= MAX_ROW; row++) {
 		uint8_t clearCommand[2] = {row, 0x00};
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_RESET);
-		for (int matrix = 0; matrix < NUM_MATRIX; matrix++) {
-			HAL_SPI_Transmit(&hspi1, clearCommand ,2, 1000);
-		}
+		HAL_SPI_Transmit(&hspi1, clearCommand ,2, 1000);
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_SET);
 	}
 }
@@ -79,60 +76,31 @@ void Matrix_Init(void) {
 	Matrix_Clear();
 	for(int command = 0; command < 5; command++) {
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_RESET);
-		for (int matrix = 0; matrix < NUM_MATRIX; matrix++) {
-			HAL_SPI_Transmit(&hspi1, InitCommands[command] ,2, 1000);
-		}
+		HAL_SPI_Transmit(&hspi1, InitCommands[command] ,2, 1000);
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_SET);
 	}
 }
 
-void Write_Char(int matrix_num, int char_num) {
+void Write_Char(int char_num) {
 	uint8_t charData[8];
 	for (int row = 1; row <= MAX_ROW; row++) {
-		for (int matrix = 0; matrix < NUM_MATRIX; matrix++) {
-				if (matrix == matrix_num) {
-					charData[2*matrix + 0] = row;
-					charData[2*matrix + 1] = LETTERS[char_num][row-1];
-				} else {
-					charData[2*matrix + 0] = NOOP;
-				}
-		 }
+		charData[2*matrix + 0] = row;
+	    charData[2*matrix + 1] = LETTERS[char_num][row-1];
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_RESET);
 		HAL_SPI_Transmit(&hspi1, charData ,8, 1000);
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_SET);
 	}
 }
 
-void Write_Pixel(int matrix_num, int row_num, int col){
+void Write_Pixel(int row_num, int col){
     uint8_t data[8];
     
     for (int row = 1; row <= MAX_ROW; row++){
-        for( int matrix = 0; matrix < NUM_MATRIX; matrix++){
-            if (matrix == matrix_num && row == row_num){
-                data[2*matrix] = row;
-                data[2*matrix + 1] = 1 << col;
-            }else{
-                data[2*matrix] = NOOP;
-            }
-        } 
+        data[2*matrix] = row;
+        data[2*matrix + 1] = 1 << col;
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_RESET);
 		HAL_SPI_Transmit(&hspi1, data ,8, 1000);
 		HAL_GPIO_WritePin(CS_GPIO_Port,CS_Pin, GPIO_PIN_SET);
     }
 }
 
-
-void Six_Seven(int iterations) {
-	for (int i = 0; i < iterations; i++) {
-		for (int mat = 3; mat >= 1; mat--) {
-				Write_Char(mat, 6);
-				Write_Char(mat - 1, 7);
-				HAL_Delay(250);
-				Matrix_Clear();
-			}
-		Write_Char(0, 6);
-		Write_Char(3, 7);
-		HAL_Delay(250);
-		Matrix_Clear();
-	}
-}
