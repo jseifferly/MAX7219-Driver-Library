@@ -12,6 +12,5 @@ void Matrix_Clear(void);
 void Matrix_Init(void);
 void Write_Char(int char_num);
 void Write_Pixel(int row_num, int col);
-void Six_Seven(int iterations);
 
 #endif /* INC_MAX7219DRIVER_H_ */
